@@ -1,4 +1,5 @@
 import Accordion from "@/components/custom/Accordion";
+import PageLink from "@/components/custom/PageLink";
 
 export default async function Home() {
   const items = [
@@ -29,6 +30,15 @@ export default async function Home() {
         Welcome Home
         <div>
           <Accordion headline="Frequently Asked Questions" items={items} />
+        </div>
+        <div>
+          <PageLink href="/" text="See our mission to create code" />
+        </div>
+        <div>
+          <PageLink href="/" text="Hello" />
+        </div>
+        <div>
+          <PageLink href="/" text="How about this" />
         </div>
       </main>
     </>
