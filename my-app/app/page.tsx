@@ -1,5 +1,6 @@
 import Accordion from "@/components/custom/Accordion";
 import PageLink from "@/components/custom/PageLink";
+import JobSearch from "@/components/custom/JobSearch";
 
 export default async function Home() {
   const items = [
@@ -39,6 +40,9 @@ export default async function Home() {
         </div>
         <div>
           <PageLink href="/" text="How about this" />
+        </div>
+        <div>
+          <JobSearch />
         </div>
       </main>
     </>
