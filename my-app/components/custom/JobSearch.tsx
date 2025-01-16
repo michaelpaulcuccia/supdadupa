@@ -1,23 +1,47 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { jobList } from "@/data";
+import { Input } from "@/components/ui/Input";
 
 const JobSearch: React.FC = () => {
-  const [selectedDepartment, setSelectedDepartment] = useState<string>(""); // To filter by department
-  const [selectedLocation, setSelectedLocation] = useState<string>(""); // To filter by city
+  const [selectedDepartment, setSelectedDepartment] = useState<string>(""); // Filter by department
+  const [selectedLocation, setSelectedLocation] = useState<string>(""); // Filter by city
+  const [searchQuery, setSearchQuery] = useState<string>(""); // Store user input for search
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>(""); // Debounce search for better UX
 
-  // Helper function to filter jobs based on selections
+  // Debounce logic: Wait for 300ms after the user stops typing to update the search query
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchQuery]);
+
+  // Filter jobs based on selectedDepartment, selectedLocation, and searchQuery
   const filterJobs = () => {
     return jobList
       .filter((department) =>
         selectedDepartment ? department.department === selectedDepartment : true
       )
       .flatMap((department) =>
-        department.jobs.filter((job) =>
-          selectedLocation
+        department.jobs.filter((job) => {
+          const matchesLocation = selectedLocation
             ? job.location.some((loc) => loc.city === selectedLocation)
-            : true
-        )
+            : true;
+
+          const matchesSearch =
+            debouncedSearchQuery.length < 4 ||
+            job.title
+              .toLowerCase()
+              .includes(debouncedSearchQuery.toLowerCase()) ||
+            department.department
+              .toLowerCase()
+              .includes(debouncedSearchQuery.toLowerCase());
+
+          return matchesLocation && matchesSearch;
+        })
       );
   };
 
@@ -25,9 +49,17 @@ const JobSearch: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-row justify-between items-center border p-4">
+      <div className="flex flex-row justify-between items-center border p-4 gap-4">
         {/* Search Filter */}
-        <div>{/* INPUT goes here */}</div>
+        <div className="flex-1">
+          <Input
+            type="text"
+            placeholder="Search for jobs or departments..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
         {/* Department Filter */}
         <div>
           <label>
@@ -35,6 +67,7 @@ const JobSearch: React.FC = () => {
             <select
               value={selectedDepartment}
               onChange={(e) => setSelectedDepartment(e.target.value)}
+              className="border border-gray-300 p-2 rounded-md"
             >
               <option value="">All Departments</option>
               {jobList.map((department) => (
@@ -50,12 +83,13 @@ const JobSearch: React.FC = () => {
         </div>
 
         {/* Location Filter */}
-        <div style={{ marginTop: "10px" }}>
+        <div>
           <label>
             Location:
             <select
               value={selectedLocation}
               onChange={(e) => setSelectedLocation(e.target.value)}
+              className="border border-gray-300 p-2 rounded-md"
             >
               <option value="">All Locations</option>
               {/* Get unique list of cities */}
@@ -76,13 +110,14 @@ const JobSearch: React.FC = () => {
           </label>
         </div>
       </div>
+
       {/* Job Listing */}
       <div style={{ marginTop: "20px" }}>
         {filteredJobs.length ? (
           <ul>
             {filteredJobs.map((job, index) => (
-              <li key={index}>
-                <h3>{job.title}</h3>
+              <li key={index} className="border-b border-gray-200 py-2">
+                <h3 className="font-medium">{job.title}</h3>
                 <p>
                   Locations:{" "}
                   {job.location
@@ -93,7 +128,7 @@ const JobSearch: React.FC = () => {
             ))}
           </ul>
         ) : (
-          <p>No jobs found. Try adjusting your filters.</p>
+          <p>No jobs found. Try adjusting your filters or search.</p>
         )}
       </div>
     </>
