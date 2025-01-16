@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { jobList } from "@/data";
-import { Input } from "@/components/ui/Input";
+import { Input } from "/Users/michael-paulcuccia/supdadupa/my-app/components/ui/input";
 
 const JobSearch: React.FC = () => {
   const [selectedDepartment, setSelectedDepartment] = useState<string>(""); // Filter by department
@@ -46,6 +46,20 @@ const JobSearch: React.FC = () => {
   };
 
   const filteredJobs = filterJobs();
+
+  // Determine whether to show the job listing
+  const shouldShowJobs =
+    debouncedSearchQuery.length >= 4 ||
+    selectedDepartment !== "" ||
+    selectedLocation !== "";
+
+  // Reset filters and search query
+  const resetFilters = () => {
+    setSelectedDepartment("");
+    setSelectedLocation("");
+    setSearchQuery("");
+    setDebouncedSearchQuery("");
+  };
 
   return (
     <>
@@ -109,26 +123,40 @@ const JobSearch: React.FC = () => {
             </select>
           </label>
         </div>
+
+        {/* Reset Button */}
+        {shouldShowJobs && (
+          <button
+            onClick={resetFilters}
+            className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300"
+          >
+            Reset
+          </button>
+        )}
       </div>
 
       {/* Job Listing */}
       <div style={{ marginTop: "20px" }}>
-        {filteredJobs.length ? (
-          <ul>
-            {filteredJobs.map((job, index) => (
-              <li key={index} className="border-b border-gray-200 py-2">
-                <h3 className="font-medium">{job.title}</h3>
-                <p>
-                  Locations:{" "}
-                  {job.location
-                    .map((loc) => `${loc.city}, ${loc.state}`)
-                    .join(", ")}
-                </p>
-              </li>
-            ))}
-          </ul>
+        {shouldShowJobs ? (
+          filteredJobs.length ? (
+            <ul>
+              {filteredJobs.map((job, index) => (
+                <li key={index} className="border-b border-gray-200 py-2">
+                  <h3 className="font-medium">{job.title}</h3>
+                  <p>
+                    Locations:{" "}
+                    {job.location
+                      .map((loc) => `${loc.city}, ${loc.state}`)
+                      .join(", ")}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <></>
+          )
         ) : (
-          <p>No jobs found. Try adjusting your filters or search.</p>
+          <></>
         )}
       </div>
     </>
