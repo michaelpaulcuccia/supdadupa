@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { jobList } from "@/data";
-import { Input } from "/Users/michael-paulcuccia/supdadupa/my-app/components/ui/input";
+//import { Input } from "/Users/michael-paulcuccia/supdadupa/my-app/components/ui/input";
+import { Input } from "../ui/input";
 
 const JobSearch: React.FC = () => {
   const [selectedDepartment, setSelectedDepartment] = useState<string>(""); // Filter by department
